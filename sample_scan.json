@@ -1,0 +1,35 @@
+{
+    "metadata": {
+        "scan_name": "API Service Security Audit",
+        "scan_date": "2026-06-05",
+        "target_scope": "api.prod.acme.corp",
+        "client_name": "Acme Services LLC",
+        "tester_name": "External Pentest Team"
+    },
+    "vulnerabilities": [
+        {
+            "title": "SQL Injection in Search API",
+            "severity": "CRITICAL",
+            "host": "api.prod.acme.corp",
+            "port": "443",
+            "description": "The 'query' parameter of the /api/v1/search endpoint does not properly sanitize user inputs, allowing SQL queries to be run directly on the database.",
+            "remediation": "Implement parameterized queries or use a secure ORM framework to sanitize user inputs."
+        },
+        {
+            "title": "Broken Object Level Authorization (BOLA)",
+            "severity": "HIGH",
+            "host": "api.prod.acme.corp",
+            "port": "443",
+            "description": "Users can access metadata of other accounts by modifying the 'account_id' parameter in /api/v1/accounts/{id} without active verification checks.",
+            "remediation": "Verify authorization tokens against the requested object ownership before serving data."
+        },
+        {
+            "title": "Weak JWT Signature Verification",
+            "severity": "MEDIUM",
+            "host": "api.prod.acme.corp",
+            "port": "443",
+            "description": "The authentication server accepts JWT tokens with the signature algorithm set to 'none', bypassing authentication checks.",
+            "remediation": "Enforce strict signature validation using RS256/HS256 and reject tokens containing algorithm parameter set to 'none'."
+        }
+    ]
+}

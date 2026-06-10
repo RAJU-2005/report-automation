@@ -1,0 +1,24 @@
+=========================================
+RAW VULNERABILITY SCANNER EXPORT
+=========================================
+Client: Acme Corp
+Target Scope: 192.168.20.1-192.168.20.50
+Date: 2026-06-08
+
+[CRITICAL] Broken Access Control on File Server
+Host: 192.168.20.10
+Port: 80
+Description: The backup folder /backup/db/ is accessible without password authentication, exposing raw SQL backups.
+Remediation: Restrict HTTP folder listings and enforce active session verification on the directory.
+
+[HIGH] Outdated Apache Apache Tomcat Vulnerability
+Host: 192.168.20.15
+Port: 8080
+Description: The server runs Tomcat version 8.5.3 which has vulnerabilities to remote code execution.
+Remediation: Upgrade the Apache Tomcat installation to version 8.5.50 or higher.
+
+[MEDIUM] SSH Weak Ciphers Enabled
+Host: 192.168.20.20
+Port: 22
+Description: The SSH server is configured to support weak MAC algorithms and CBC ciphers.
+Remediation: Disable CBC mode ciphers and weak HMAC algorithms in sshd_config.

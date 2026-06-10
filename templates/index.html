@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RepAuto - Security Report Automation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="ambient-glow bg-glow-1"></div>
+    <div class="ambient-glow bg-glow-2"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
+                <span class="logo-text">Rep<span class="accent-text">Auto</span></span>
+            </div>
+            <div class="system-status">
+                <span class="status-indicator online"></span>
+                <span class="status-label">Local Engine Ready</span>
+            </div>
+        </header>
+
+        <!-- Progress Wizard -->
+        <div class="wizard-steps-container">
+            <div class="wizard-progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 12.5%;"></div>
+            </div>
+            <div class="wizard-steps">
+                <div class="step-item active" id="step1">
+                    <div class="step-number">1</div>
+                    <div class="step-label">Upload Scan</div>
+                </div>
+                <div class="step-item" id="step2">
+                    <div class="step-number">2</div>
+                    <div class="step-label">Extract Data</div>
+                </div>
+                <div class="step-item" id="step3">
+                    <div class="step-number">3</div>
+                    <div class="step-label">Review & Edit</div>
+                </div>
+                <div class="step-item" id="step4">
+                    <div class="step-number">4</div>
+                    <div class="step-label">Download Report</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- STAGE 1: UPLOAD -->
+            <section class="stage-section active" id="stage1Section">
+                <div class="stage-header">
+                    <h1 class="stage-title">Configure Scan Report & Template</h1>
+                    <p class="stage-subtitle">Upload your vulnerability scan findings and select an optional Word template to populate.</p>
+                </div>
+
+                <div class="upload-grid">
+                    <!-- Scan Upload Card -->
+                    <div class="upload-card glass-panel" id="scanUploadZone">
+                        <div class="upload-icon-wrapper">
+                            <i class="fa-solid fa-file-shield upload-card-icon"></i>
+                        </div>
+                        <h3 class="card-title">1. Vulnerability Scan Report</h3>
+                        <p class="card-desc">Drag & drop or select a scan report file</p>
+                        <div class="file-spec">Supports PDF, CSV (Nessus), JSON</div>
+                        <input type="file" id="scanFileInput" class="file-input-hidden" accept=".pdf,.csv,.json,.txt">
+                        <button class="btn btn-secondary select-file-btn" onclick="document.getElementById('scanFileInput').click()">
+                            Choose Scan File
+                        </button>
+                        <div class="selected-file-badge" id="selectedScanBadge" style="display: none;">
+                            <i class="fa-solid fa-check-circle"></i>
+                            <span class="file-name" id="selectedScanName">No file chosen</span>
+                            <button class="remove-file-btn" id="removeScanBtn"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Template Upload Card -->
+                    <div class="upload-card glass-panel" id="templateUploadZone">
+                        <div class="upload-icon-wrapper">
+                            <i class="fa-solid fa-file-word upload-card-icon"></i>
+                        </div>
+                        <h3 class="card-title">2. Word Template (.docx)</h3>
+                        <p class="card-desc">Provide your customized Word template or use our default layout</p>
+                        <div class="file-spec">Supports Microsoft Word (.docx)</div>
+                        <input type="file" id="templateFileInput" class="file-input-hidden" accept=".docx">
+                        <div class="btn-group">
+                            <button class="btn btn-secondary select-file-btn" onclick="document.getElementById('templateFileInput').click()">
+                                Choose Template
+                            </button>
+                            <span class="or-separator">or</span>
+                            <button class="btn btn-text" id="useDefaultTemplateBtn">
+                                <i class="fa-solid fa-magic"></i> Use Sample Template
+                            </button>
+                        </div>
+                        <div class="selected-file-badge" id="selectedTemplateBadge" style="display: none;">
+                            <i class="fa-solid fa-check-circle text-primary"></i>
+                            <span class="file-name" id="selectedTemplateName">No file chosen</span>
+                            <button class="remove-file-btn" id="removeTemplateBtn"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-footer">
+                    <button class="btn btn-primary btn-large" id="startExtractionBtn" disabled>
+                        Extract Report Data <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- STAGE 2: EXTRACTION -->
+            <section class="stage-section" id="stage2Section">
+                <div class="extraction-card glass-panel">
+                    <div class="loader-container">
+                        <div class="scanner-laser"></div>
+                        <i class="fa-solid fa-circle-nodes pulse-icon"></i>
+                    </div>
+                    <h2 class="extraction-title">Analyzing Scan Report</h2>
+                    <p class="extraction-status" id="extractionStatus">Reading text streams and mapping tables...</p>
+                    
+                    <div class="extraction-progress-container">
+                        <div class="extraction-bar">
+                            <div class="extraction-fill" id="extractionBarFill" style="width: 0%;"></div>
+                        </div>
+                        <div class="extraction-percentage" id="extractionPercentage">0%</div>
+                    </div>
+
+                    <div class="extraction-logs" id="extractionLogs">
+                        <div class="log-line">> Initializing parsing engine...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STAGE 3: REVIEW & EDIT -->
+            <section class="stage-section" id="stage3Section">
+                <div class="stage-header flex-header">
+                    <div>
+                        <h1 class="stage-title">Review and Edit Findings</h1>
+                        <p class="stage-subtitle">Verify the extracted metadata, metrics, and vulnerability details. Changes here will populate directly into the template.</p>
+                    </div>
+                    <div class="action-buttons-group">
+                        <button class="btn btn-outline" id="addFindingBtn">
+                            <i class="fa-solid fa-plus"></i> Add Finding
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Metadata & Metrics Panels -->
+                <div class="review-grid">
+                    <!-- Metadata Form -->
+                    <div class="review-card glass-panel flex-grow">
+                        <h3 class="panel-section-title"><i class="fa-solid fa-circle-info"></i> Report Metadata</h3>
+                        <div class="metadata-form-grid">
+                            <div class="form-group">
+                                <label for="metaClient">Client Name</label>
+                                <input type="text" id="metaClient" class="form-control" placeholder="e.g. Acme Corp">
+                            </div>
+                            <div class="form-group">
+                                <label for="metaScanName">Scan Assessment Name</label>
+                                <input type="text" id="metaScanName" class="form-control" placeholder="e.g. External Penetration Scan">
+                            </div>
+                            <div class="form-group">
+                                <label for="metaScanDate">Scan Date</label>
+                                <input type="date" id="metaScanDate" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="metaTarget">Target Scope</label>
+                                <input type="text" id="metaTarget" class="form-control" placeholder="e.g. 10.0.0.0/24">
+                            </div>
+                            <div class="form-group">
+                                <label for="metaTester">Audited By</label>
+                                <input type="text" id="metaTester" class="form-control" placeholder="e.g. SecOps Team">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Badges -->
+                    <div class="review-card glass-panel metrics-card">
+                        <h3 class="panel-section-title"><i class="fa-solid fa-chart-pie"></i> Severity Summary</h3>
+                        <div class="metrics-badges-grid">
+                            <div class="metric-badge-item critical">
+                                <div class="metric-num" id="metricCrit">0</div>
+                                <div class="metric-label">Critical</div>
+                            </div>
+                            <div class="metric-badge-item high">
+                                <div class="metric-num" id="metricHigh">0</div>
+                                <div class="metric-label">High</div>
+                            </div>
+                            <div class="metric-badge-item medium">
+                                <div class="metric-num" id="metricMed">0</div>
+                                <div class="metric-label">Medium</div>
+                            </div>
+                            <div class="metric-badge-item low">
+                                <div class="metric-num" id="metricLow">0</div>
+                                <div class="metric-label">Low</div>
+                            </div>
+                        </div>
+                        <div class="total-metrics-banner">
+                            Total Findings: <span id="metricTotal">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Findings Table Section -->
+                <div class="findings-container glass-panel">
+                    <h3 class="panel-section-title"><i class="fa-solid fa-triangle-exclamation"></i> Discovered Vulnerabilities</h3>
+                    <div class="table-wrapper">
+                        <table class="findings-table" id="findingsTable">
+                            <thead>
+                                <tr>
+                                    <th width="12%">Severity</th>
+                                    <th width="28%">Vulnerability Title</th>
+                                    <th width="15%">Host / Port</th>
+                                    <th width="20%">Description</th>
+                                    <th width="20%">Remediation / Solution</th>
+                                    <th width="5%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="findingsTableBody">
+                                <!-- Dynamically populated rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="action-footer">
+                    <button class="btn btn-secondary btn-large" id="backToUploadBtn">
+                        <i class="fa-solid fa-arrow-left"></i> Reupload Files
+                    </button>
+                    <button class="btn btn-primary btn-large" id="goToGenerateBtn">
+                        Proceed to Generation <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- STAGE 4: DOWNLOAD -->
+            <section class="stage-section" id="stage4Section">
+                <div class="download-container glass-panel">
+                    <div class="success-banner">
+                        <div class="checkmark-wrapper">
+                            <i class="fa-solid fa-circle-check checkmark-icon"></i>
+                        </div>
+                        <h1 class="download-title">Report Ready for Compilation</h1>
+                        <p class="download-desc">Select your preferred format to compile and download your final report.</p>
+                    </div>
+
+                    <div class="download-options-grid">
+                        <!-- Word option -->
+                        <div class="download-option-card glass-panel" id="downloadWordCard">
+                            <i class="fa-solid fa-file-word format-icon word-color"></i>
+                            <h3 class="format-title">Microsoft Word (.docx)</h3>
+                            <p class="format-desc">Best for editing, styling adjustments, and custom additions. Variables and tables will be injected directly.</p>
+                            <button class="btn btn-primary format-btn" id="downloadWordBtn">
+                                <i class="fa-solid fa-download"></i> Download Word File
+                            </button>
+                        </div>
+
+                        <!-- PDF option -->
+                        <div class="download-option-card glass-panel" id="downloadPdfCard">
+                            <i class="fa-solid fa-file-pdf format-icon pdf-color"></i>
+                            <h3 class="format-title">PDF Document (.pdf)</h3>
+                            <p class="format-desc">Best for sharing directly with stakeholders. Renders document values and locks formatting.</p>
+                            <div class="pdf-notice-tag"><i class="fa-solid fa-info-circle"></i> Requires MS Word on local host</div>
+                            <button class="btn btn-secondary format-btn" id="downloadPdfBtn">
+                                <i class="fa-solid fa-download"></i> Generate & Download PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PDF Warning (displayed if win32com server PDF conversion fails) -->
+                    <div class="warning-alert-box" id="pdfWarningAlert" style="display: none;">
+                        <i class="fa-solid fa-triangle-exclamation warning-icon"></i>
+                        <div class="warning-text">
+                            <strong>PDF Conversion Notice:</strong> Word-to-PDF conversion failed because Microsoft Word is not installed on this local server. 
+                            We have downloaded the populated <strong>Word (.docx)</strong> file instead, which you can save as a PDF directly inside MS Word or any other editor.
+                        </div>
+                        <button class="close-alert-btn" onclick="document.getElementById('pdfWarningAlert').style.display='none'">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <div class="action-footer">
+                        <button class="btn btn-secondary" id="backToReviewBtn">
+                            <i class="fa-solid fa-pen-to-square"></i> Back to Review & Edit
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>&copy; 2026 RepAuto Utility. Local sandbox environment.</p>
+        </footer>
+    </div>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
